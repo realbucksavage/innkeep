@@ -1,0 +1,4 @@
+amqp:
+    enable: true
+    addr: amqp://guest:guest@localhost:5671/
+    exchage: innkeep-events
