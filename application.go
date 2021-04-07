@@ -1,14 +1,19 @@
 package innkeep
 
 type Application struct {
-	Name      string
-	Instances []Instance
+	Name           string
+	HealthCheckURL string
+	Metadata       MetadataMap
+	Instances      []Instance
 }
 
 type Instance struct {
-	Host     HostInfo
-	Ports    map[string]Port
-	Metadata MetadataMap
+	Id              string
+	Host            HostInfo
+	Ports           map[string]Port
+	Metadata        MetadataMap
+	LastUpdatedTime int64
+	LastDirtyTime   int64
 }
 
 type HostInfo struct {

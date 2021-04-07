@@ -1,4 +1,7 @@
-amqp:
+eureka:
     enable: true
+    addr: :8761
+amqp:
+    enable: false
     addr: amqp://guest:guest@localhost:5671/
     exchage: innkeep-events
