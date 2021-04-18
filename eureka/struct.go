@@ -25,6 +25,11 @@ type instanceInfo struct {
 	Metadata         map[string]string `json:"metadata"`
 }
 
+type dergisterRequest struct {
+	app        string
+	instanceID string
+}
+
 type registerRequest struct {
 	Instance instanceRequest `json:"instance"`
 }

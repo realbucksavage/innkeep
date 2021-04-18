@@ -1,5 +1,10 @@
 package innkeep
 
+import (
+	"fmt"
+	"net/http"
+)
+
 type Application struct {
 	Name           string
 	HealthCheckURL string
@@ -34,4 +39,15 @@ func (h HostInfo) GetHost() string {
 	} else {
 		return h.IPv4
 	}
+}
+
+func (a Application) FindInstance(id string) (Instance, int, error) {
+
+	for idx, i := range a.Instances {
+		if i.Id == id {
+			return i, idx, nil
+		}
+	}
+
+	return Instance{}, -1, NewStatusError(fmt.Errorf("instance not found: %s", id), http.StatusNotFound)
 }
