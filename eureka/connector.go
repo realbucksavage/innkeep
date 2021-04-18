@@ -1,7 +1,6 @@
 package eureka
 
 import (
-	"io/ioutil"
 	"net/http"
 
 	"github.com/realbucksavage/innkeep"
@@ -14,29 +13,27 @@ type eurekaConnector struct {
 	srv      *http.Server
 }
 
+func (e *eurekaConnector) Name() string {
+	return "Innkeep/Eureka/v1"
+}
+
 func (e *eurekaConnector) Start() error {
 	klog.V(2).Infof("starting eureka server at %s", e.srv.Addr)
 	return e.srv.ListenAndServe()
 }
 
-func NewConnector(reg registry.Registry, bindAddr string) innkeep.Connector {
-	klog.V(3).Infof("creating eureka transport")
+func (e *eurekaConnector) Stop() error {
+	return e.srv.Close()
+}
 
+func NewConnector(reg registry.Registry, bindAddr string) innkeep.Connector {
 	srv := &http.Server{
 		Addr:    bindAddr,
 		Handler: makeHandler(reg),
-		// Handler: &logAllHandler{},
 	}
 
 	return &eurekaConnector{
 		registry: reg,
 		srv:      srv,
 	}
-}
-
-type logAllHandler struct{}
-
-func (l *logAllHandler) ServeHTTP(_ http.ResponseWriter, r *http.Request) {
-	bytes, _ := ioutil.ReadAll(r.Body)
-	klog.Infof("%s %s\n%v\n\n%%s", r.Method, r.URL, r.Header, string(bytes))
 }
