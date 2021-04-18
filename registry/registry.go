@@ -10,14 +10,20 @@ import (
 )
 
 type Registry interface {
+	VersionDelta() string
 	Applications() ([]*innkeep.Application, error)
 	Register(*innkeep.Application)
 	DeregisterInstance(appName, instanceID string) error
 }
 
 type defaultRegistry struct {
-	mu     sync.RWMutex
-	appMap map[string]*innkeep.Application
+	version int
+	mu      sync.RWMutex
+	appMap  map[string]*innkeep.Application
+}
+
+func (d *defaultRegistry) VersionDelta() string {
+	return fmt.Sprintf("%d", d.version)
 }
 
 func (d *defaultRegistry) Applications() ([]*innkeep.Application, error) {
@@ -35,6 +41,7 @@ func (d *defaultRegistry) Applications() ([]*innkeep.Application, error) {
 func (d *defaultRegistry) Register(app *innkeep.Application) {
 	d.mu.Lock()
 	defer d.mu.Unlock()
+	defer d.increseVersionDelta()
 
 	if a, found := d.appMap[app.Name]; found {
 		klog.V(2).Infof("%s already exists... merging instances", app.Name)
@@ -77,6 +84,8 @@ func (d *defaultRegistry) DeregisterInstance(appName, instanceID string) error {
 		}
 	}
 
+	d.increseVersionDelta()
+
 	if len(instances) == 0 {
 		// dereg application
 		delete(d.appMap, appName)
@@ -87,8 +96,13 @@ func (d *defaultRegistry) DeregisterInstance(appName, instanceID string) error {
 	return nil
 }
 
+func (d *defaultRegistry) increseVersionDelta() {
+	d.version += 1
+}
+
 func NewRegistry() Registry {
 	return &defaultRegistry{
-		appMap: make(map[string]*innkeep.Application),
+		version: 1,
+		appMap:  make(map[string]*innkeep.Application),
 	}
 }

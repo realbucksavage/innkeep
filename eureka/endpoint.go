@@ -58,7 +58,7 @@ func makeApplicationsEndpoint(reg registry.Registry) endpoint.Endpoint {
 		}
 
 		resp := appsResponse{
-			VerisonDelta: "1",
+			VerisonDelta: reg.VersionDelta(),
 			Applications: make([]appInfo, 0),
 		}
 
