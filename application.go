@@ -14,6 +14,7 @@ type Instance struct {
 	Metadata        MetadataMap
 	LastUpdatedTime int64
 	LastDirtyTime   int64
+	Status          string
 }
 
 type HostInfo struct {

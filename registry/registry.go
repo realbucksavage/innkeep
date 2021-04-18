@@ -53,8 +53,8 @@ func (d *defaultRegistry) Register(app *innkeep.Application) {
 				klog.V(3).Infof("instance %s is new", inst.Id)
 				a.Instances = append(a.Instances, in)
 			} else {
-				klog.V(3).Infof("replacing instance %s with %v", inst.Id, in)
-				a.Instances[idx] = in
+				klog.V(3).Infof("replacing instance %s with %v", in.Id, inst)
+				a.Instances[idx] = inst
 			}
 		}
 	} else {

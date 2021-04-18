@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"time"
@@ -45,9 +46,42 @@ func makeApplicationsEndpoint(reg registry.Registry) endpoint.Endpoint {
 			VerisonDelta: "1",
 			Applications: make([]appInfo, 0),
 		}
+
 		for _, a := range apps {
+			instances := make([]instanceInfo, 0)
+
+			for _, i := range a.Instances {
+				in := instanceInfo{
+					InstanceID:       i.Id,
+					Hostname:         i.Host.Hostname,
+					App:              a.Name,
+					IpAddr:           i.Host.GetHost(),
+					Status:           i.Status,
+					OverriddenStatus: i.Status,
+					Metadata:         i.Metadata,
+				}
+
+				for kind, p := range i.Ports {
+					switch kind {
+					case "http":
+						{
+							in.Port = portInfo{Number: p.NonSecure, Enabled: "true"}
+							in.SecurePort = portInfo{Number: p.Secure, Enabled: "true"}
+						}
+					default: // set ports set by other transports in metadata
+						{
+							i.Metadata["ports."+kind+".secure"] = fmt.Sprintf("%d", p.Secure)
+							i.Metadata["ports."+kind+".nonSecure"] = fmt.Sprintf("%d", p.NonSecure)
+						}
+					}
+				}
+
+				instances = append(instances, in)
+			}
+
 			resp.Applications = append(resp.Applications, appInfo{
-				Name: a.Name,
+				Name:     a.Name,
+				Instance: instances,
 			})
 		}
 
@@ -94,7 +128,8 @@ func makeRegisterApplicationsEndpoint(reg registry.Registry) endpoint.Endpoint {
 
 		inst := req.Instance
 		app := &innkeep.Application{
-			Name: inst.App,
+			Name:           inst.App,
+			HealthCheckURL: inst.HealthCheckURL,
 			Instances: []innkeep.Instance{
 				{
 					Id: inst.InstanceID,
@@ -105,11 +140,12 @@ func makeRegisterApplicationsEndpoint(reg registry.Registry) endpoint.Endpoint {
 					},
 					Ports: map[string]innkeep.Port{
 						"http": {
-							Secure:    0,
-							NonSecure: 0,
+							Secure:    inst.Port.Number,
+							NonSecure: inst.SecurePort.Number,
 						},
 					},
 					Metadata:        inst.Metadata,
+					Status:          inst.Status,
 					LastUpdatedTime: time.Now().UnixNano(),
 				},
 			},

@@ -9,7 +9,20 @@ type appsResponse struct {
 }
 
 type appInfo struct {
-	Name string `json:"name"`
+	Name     string         `json:"name"`
+	Instance []instanceInfo `json:"instance"`
+}
+
+type instanceInfo struct {
+	InstanceID       string            `json:"instanceId"`
+	Hostname         string            `json:"hostName"`
+	App              string            `json:"app"`
+	IpAddr           string            `json:"ipAddr"`
+	Status           string            `json:"status"`
+	OverriddenStatus string            `json:"overriddenstatus"`
+	Port             portInfo          `json:"port"`
+	SecurePort       portInfo          `json:"securePort"`
+	Metadata         map[string]string `json:"metadata"`
 }
 
 type registerRequest struct {
@@ -17,13 +30,16 @@ type registerRequest struct {
 }
 
 type instanceRequest struct {
-	InstanceID string              `json:"instanceId"`
-	App        string              `json:"app"`
-	IpAddr     string              `json:"ipAddr"`
-	Hostname   string              `json:"hostname"`
-	Port       portInfo            `json:"port"`
-	SecurePort portInfo            `json:"securePort"`
-	Metadata   innkeep.MetadataMap `json:"metadata"`
+	InstanceID     string              `json:"instanceId"`
+	App            string              `json:"app"`
+	IpAddr         string              `json:"ipAddr"`
+	Hostname       string              `json:"hostname"`
+	Port           portInfo            `json:"port"`
+	SecurePort     portInfo            `json:"securePort"`
+	Metadata       innkeep.MetadataMap `json:"metadata"`
+	Status         string              `json:"status"`
+	HomePageURL    string              `json:"homePageUrl"`
+	HealthCheckURL string              `json:"healthCheckUrl"`
 }
 
 type portInfo struct {

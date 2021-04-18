@@ -25,6 +25,7 @@ func NewConnector(reg registry.Registry, bindAddr string) innkeep.Connector {
 	srv := &http.Server{
 		Addr:    bindAddr,
 		Handler: makeHandler(reg),
+		// Handler: &logAllHandler{},
 	}
 
 	return &eurekaConnector{
